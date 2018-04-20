@@ -1,0 +1,29 @@
+The First Version of CWL Linter 
+
+This is a python program to check the Common Workflow Language (CWL)
+
+Currently works with Python3
+
+REQUIREMENTS
+Python "requests" module
+import argparse
+import sys
+import os
+import ruamel.yaml as yaml
+
+-------------------------------------------------------------------------
+usage: python3 CWL_Linter.py -cwl your_cwl_file
+                        
+                        
+-------------------------------------------------------------------------
+Have done:
+1. check running the CWL file with cwltool
+2. load input cwl file as json object in order and check YAML format and cwlVersion
+3. check the required order and Fields 
+4. check the format
+5. check the steps order for Workflow
+
+Need to do next step:
+1. The records of inputs and outputs stay in one line
+2. ...
+

@@ -1,0 +1,53 @@
+1. Format and Order:
+Format: cwlVersion,class,id,requirements,baseCommand,arguments,inputs,outputs,expression,steps
+
+cwlVersion: v1.0
+class: CommandLineTool/Workflow/ExpressionTool
+id: filename
+[requirements:]
+  - class: DockerRequirement
+    dockerPull: 'kfdrc/bwa-picard:broad'
+  - class: ShellCommandRequirement
+  - class: InlineJavascriptRequirement
+  - class: ResourceRequirement
+    ramMin: 14000
+    coresMin: 16
+baseCommand: [java, -jar, /picard.jar, SortSam]     ---for CommandLineTool
+arguments:                                          ---for CommandLineTool
+  - position: 1
+    valueFrom: CREATE_INDEX=true
+  - position: 2
+    valueFrom: SORT_ORDER=coordinate
+  - position: 3
+    prefix: OUTPUT=
+    separate: false
+    valueFrom: $(inputs.input_bam.nameroot).sort.bam
+inputs:
+  input_bam:
+    type: File
+    inputBinding:
+      position: 4
+      prefix: 'INPUT='
+      separate: false
+  indexed_reference_fasta:
+    type: File
+    secondaryFiles: [.64.amb, .64.ann, .64.bwt, .64.pac, .64.sa, .64.alt,
+    ^.dict, .amb, .ann, .bwt, .pac, .sa]
+outputs:
+  output:
+    type: File
+    outputBinding:
+      glob: '*.bam'
+expression: >-                                       ---for ExpressionTool                                         
+  ${if (inputs.input_files.length == 1) {thr = 36} else {thr = 18}; return
+  {'threads':thr};}
+
+steps:                                               ---for Workflow                                            
+  bwa_mem:
+    run: ../tools/bwa_mem_optimized.cwl
+    in:
+      indexed_reference_fasta: indexed_reference_fasta
+      input_bam: Samtools_split/bam_files
+      threads: get_bwa_threads/threads
+    scatter: [input_bam]
+    out: [output]
