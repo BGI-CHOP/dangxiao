@@ -14,7 +14,7 @@ arguments:
     shellQuote: false
     valueFrom: >-
       -b -T $(inputs.reference.path) $(inputs.input_cram.path) > tmp &&
-      samtools view -H tmp | sed  "/^@RG/s/SM:.*$/SM:$(inputs.base_file_name)/g" | samtools reheader -P - tmp > $(inputs.input_cram.nameroot).reheader.bam
+      samtools view -H tmp | sed  "/^@RG/s/SM:\S\+/SM:$(inputs.base_file_name)/g" | samtools reheader -P - tmp > $(inputs.input_cram.nameroot).reheader.bam
       && samtools index $(inputs.input_cram.nameroot).reheader.bam $(inputs.input_cram.nameroot).reheader.bai
 inputs:
   input_cram: File
