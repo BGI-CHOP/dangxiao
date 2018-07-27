@@ -24,7 +24,8 @@ while sd_link:
     response = requests.get(sd_link).json()
     results = response['results']
     for result in results:
-      if ('cram' in result['file_name'] or 'vcf' in result['file_name']):
+      if ('cram' in result['file_name'] or 'g.vcf' in result['file_name']):
+        biospecimens=reference_genome=participant=external_aliquot_id=external_sample_id=race=gender=ethnicity=external_id=experiment_strategy=Library_ID=platform=''
         biospecimens=os.path.basename(result['_links']['biospecimen'])
         reference_genome=result['reference_genome']
         bi_link=base + result['_links']['biospecimen']
@@ -38,12 +39,11 @@ while sd_link:
         external_id=requests.get(pi_link).json()['results']['external_id']
         see_link=base + requests.get(bi_link).json()['_links']['genomic_files']
         for re in requests.get(see_link).json()['results']:
-            if 'bam' in re['file_format']:
-               se_link=base + re['_links']['sequencing_experiment']
-        experiment_strategy=requests.get(se_link).json()['results']['experiment_strategy']
- #       new_dict[result['file_name']]['is_paired_end']=requests.get(se_link).json()['results']['is_paired_end']
-        Library_ID=requests.get(se_link).json()['results']['library_name']
-        platform=requests.get(se_link).json()['results']['instrument_model']
+            if ('bam' in re['file_format'] and re['_links']['sequencing_experiment']):
+                se_link=base + re['_links']['sequencing_experiment']
+                experiment_strategy=requests.get(se_link).json()['results']['experiment_strategy']
+                Library_ID=requests.get(se_link).json()['results']['library_name']
+                platform=requests.get(se_link).json()['results']['instrument_model']
         new_dict[result['file_name']] = {
                     'biospecimens': biospecimens,
                     'reference_genome': reference_genome,
@@ -62,10 +62,9 @@ while sd_link:
         sd_link = base + response['_links']['next']
     except:
         break
-
 project_id = args.projectid
 files = api.files.query(project=project_id).all()
-my_files= [file for file in files if 'cram' in file.name or 'vcf' in file.name]
+my_files= [file for file in files if 'cram' in file.name or 'g.vcf' in file.name]
 for my_file in my_files:
 # Edit a file's metadata
     if my_file.name in new_dict.keys():
